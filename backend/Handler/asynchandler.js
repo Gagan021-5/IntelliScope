@@ -1,48 +1,52 @@
-import "dotenv/config";
 import axios from "axios";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-const serpapi = process.env.SERPAPI;
-const ninjasapi = process.env.APININJAS;
+import "dotenv/config";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API);
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_KEY);
 
 export const searchhandler = async (req, res) => {
-  const { query } = req.query;
-
-  if (!query) {
-    return res.status(400).json({ msg: "Query is required!" });
-  }
+  const { query } = req.body;
+  if (!query) return res.status(400).json({ msg: "Query is required!" });
 
   try {
-    const response =await axios.get(
-      `https://api.api-ninjas.com/v1/wikipedia?query=${query}`,
+    const wikiResponse = await axios.get(
+      `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(
+        query
+      )}`,
       {
-        headers: { "X-Api-Key": ninjasapi },
+        headers: {
+          "User-Agent": "StudentWikiAI/1.0 (https://github.com/gagan)",
+          Accept: "application/json",
+        },
       }
     );
-    const data = response.data[0] || {};
 
-    const model = genAI.GoogleGenerativeAI({
-      model: "gemini-1.5-flash",
-    });
+    const data = wikiResponse.data;
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
-    const prompt = `Summarize this in simple, verified terms for a student :Topic ${query}  Wikipedia Info: ${
-      data.summary || "No info found"
-    }`;
+    const prompt = `Summarize the following Wikipedia topic in clear, simple terms suitable for students.
+Rules:
+- Output plain text only (no *, #, -, or markdown).
+- Keep it concise, under 100 words.
+
+Topic: ${query}
+Wikipedia Info: ${data.extract || "No info found"}`;
 
     const result = await model.generateContent(prompt);
-    const aisummary = result.response.text();
+    const ai_summary = result.response.text();
+    console.log(ai_summary);
 
     res.json({
       title: data.title || query,
-      ai_summary: aisummary,
-      source_summary: data.summary,
-      link: wikiData.link || null,
+      ai_summary,
+      source_summary: data.extract,
+      link: data.content_urls?.desktop?.page || null,
+      thumbnail: data.thumbnail?.source || null,
     });
   } catch (err) {
-    console.log(err);
-    return res
-      .status(505)
-      .json({ mgs: "Cant extract information. Internal Server Error" });
+    console.error("Error fetching Wikipedia data:", err.message);
+    res.status(500).json({ msg: "Failed to fetch data or generate summary." });
   }
 };
+
+
