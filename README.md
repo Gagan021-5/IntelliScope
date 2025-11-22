@@ -1,4 +1,4 @@
-# Nutri-Guard
+# NutriVigil
 
 A full-stack application that analyzes food images and provides health safety recommendations based on user's health conditions.
 
