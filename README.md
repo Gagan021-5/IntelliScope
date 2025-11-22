@@ -90,3 +90,4 @@ The client will run on `http://localhost:5173`
 - Lucide React (icons)
 - Modern CSS with mobile-first design
 
+

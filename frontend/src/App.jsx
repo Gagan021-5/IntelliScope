@@ -6,7 +6,7 @@ import ScanPage from './pages/ScanPage'
 
 function App() {
   return (
-    <div className="app">
+    <div className="min-h-screen flex flex-col">
       <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />

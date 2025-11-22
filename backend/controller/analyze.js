@@ -3,6 +3,7 @@ import fs from "fs";
 import { geminiModel } from "../services/googleservices.js";
 import imageToBase64 from "../utils/imgconversion.js";
 import getMimeType from "../utils/getmemetype.js";
+
 export const analyzeFood = async (req, res) => {
   try {
     if (!req.file)
@@ -14,10 +15,10 @@ export const analyzeFood = async (req, res) => {
     const imagePath = req.file.path;
     const condition = req.body.condition;
 
-    // Identify food
     const base64 = imageToBase64(imagePath);
     const mimeType = getMimeType(imagePath);
 
+    // Identify food
     const identify = await geminiModel.generateContent({
       contents: [
         {
@@ -42,10 +43,16 @@ export const analyzeFood = async (req, res) => {
       }
     );
 
+    //check
+    const nutritionData = nutrition.data && nutrition.data.length > 0 ? nutrition.data[0] : {};
+
     // Analysis Prompt
     const analysisPrompt = `
-      Analyze nutritional info for "${foodName}" for someone with "${condition}".
-      Output ONLY JSON:
+      Here is the nutritional data for ${foodName}: 
+      ${JSON.stringify(nutritionData)}
+
+      Analyze this food for someone with the condition: "${condition}"
+      Output ONLY JSON in this exact format:
       {
         "traffic_light": "green" | "yellow" | "red",
         "verdict_title": "",
@@ -58,17 +65,32 @@ export const analyzeFood = async (req, res) => {
       contents: [{ role: "user", parts: [{ text: analysisPrompt }] }],
     });
 
-    const analysisText =
-      analysis.response.candidates[0].content.parts[0].text.trim();
+    let analysisText =  analysis.response.candidates[0].content.parts[0].text || "";
 
-    const cleanJson = JSON.parse(
-      analysisText.replace(/```json|```/g, "").trim()
-    );
+    // Remove code block formatting if present
+    analysisText = analysisText
+      .replace(/```json/g, "")
+      .replace(/```/g, "")
+      .trim();
 
+    let cleanJson;
+
+    try {
+      cleanJson = JSON.parse(analysisText);
+    } catch (e) {
+      console.error("JSON parse error:", e);
+      return res.status(500).json({
+        error: "Failed to parse AI response JSON",
+        raw: analysisText,
+      });
+    }
+
+    // Delete the uploaded file
     fs.unlinkSync(imagePath);
 
     res.json({
       food_name: foodName,
+      nutrition: nutritionData, // now included
       ...cleanJson,
     });
   } catch (err) {
