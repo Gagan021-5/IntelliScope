@@ -1,23 +1,33 @@
-const Navbar = () => {
-  return (
-    <nav className="flex justify-between items-center px-8 py-4 bg-black/40 backdrop-blur-md sticky top-0 z-50">
-      <a href="/" className="text-2xl font-bold text-indigo-400">
-        🧠 IntelliScope
-      </a>
+import { Link, useLocation } from 'react-router-dom'
+import './Navbar.css'
 
-      <div className="flex gap-6 text-gray-300">
-        <a href="/" className="hover:text-white transition">
-          Home
-        </a>
-        <a href="/explore" className="hover:text-white transition">
-          Explore
-        </a>
-        <a href="/about" className="hover:text-white transition">
-          About
-        </a>
+function Navbar() {
+  const location = useLocation()
+
+  return (
+    <nav className="navbar">
+      <div className="navbar-container">
+        <Link to="/" className="navbar-brand">
+          🛡️ Nutri-Guard
+        </Link>
+        <div className="navbar-links">
+          <Link 
+            to="/" 
+            className={location.pathname === '/' ? 'active' : ''}
+          >
+            Home
+          </Link>
+          <Link 
+            to="/profile" 
+            className={location.pathname === '/profile' ? 'active' : ''}
+          >
+            My Profile
+          </Link>
+        </div>
       </div>
     </nav>
-  );
-};
+  )
+}
 
-export default Navbar;
+export default Navbar
+
