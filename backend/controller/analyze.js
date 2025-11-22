@@ -67,7 +67,7 @@ export const analyzeFood = async (req, res) => {
 
     let analysisText =  analysis.response.candidates[0].content.parts[0].text || "";
 
-    // Remove code block formatting if present
+    // Remove formatting
     analysisText = analysisText
       .replace(/```json/g, "")
       .replace(/```/g, "")
@@ -85,15 +85,17 @@ export const analyzeFood = async (req, res) => {
       });
     }
 
-    // Delete the uploaded file
+    //delete upload
     fs.unlinkSync(imagePath);
 
     res.json({
       food_name: foodName,
-      nutrition: nutritionData, // now included
+      nutrition: nutritionData,
       ...cleanJson,
     });
-  } catch (err) {
+  } 
+  
+  catch (err) {
     console.error(err);
     res.status(500).json({
       error: "Analysis failed",

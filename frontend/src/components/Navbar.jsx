@@ -1,62 +1,133 @@
-import { Link, useLocation } from 'react-router-dom'
-import { motion } from 'framer-motion'
+import { Link, useLocation } from "react-router-dom";
+import { motion } from "framer-motion";
+import { Sun, Moon, Menu, X } from "lucide-react";
+import { useTheme } from "../contexts/ThemeContext";
+import { useState } from "react";
+import nutrivigile from "../assets/nutrivigile.jpeg";
 
-function Navbar() {
-  const location = useLocation()
+const Navbar = () => {
+  const { pathname } = useLocation();
+  const { theme, toggleTheme } = useTheme();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const navItem = (path, label, isMobile = false) => (
+    <motion.div
+      whileHover={!isMobile ? { scale: 1.05 } : {}}
+      whileTap={!isMobile ? { scale: 0.95 } : {}}
+      onClick={() => isMobile && setIsMobileMenuOpen(false)}
+    >
+      <Link
+        to={path}
+        className={`text-[15px] font-medium px-4 py-2 rounded-lg transition-all duration-300 no-underline block ${
+          pathname === path
+            ? theme === "dark"
+              ? "text-blue-400 bg-white/10 border border-white/20"
+              : "text-blue-600 bg-blue-50 border border-blue-200"
+            : theme === "dark"
+            ? "text-gray-300 hover:text-white hover:bg-white/10"
+            : "text-gray-700 hover:text-gray-900 hover:bg-gray-100"
+        }`}
+      >
+        {label}
+      </Link>
+    </motion.div>
+  );
 
   return (
-    <motion.nav 
-      className="bg-white/95 backdrop-blur-md shadow-lg sticky top-0 z-50 border-b border-white/20 transition-all duration-300 hover:shadow-xl"
+    <motion.nav
+      className={`backdrop-blur-xl shadow-lg sticky top-0 z-50 border-b transition-colors duration-300 ${
+        theme === "dark"
+          ? "bg-black/20 border-white/10"
+          : "bg-white/80 border-gray-200"
+      }`}
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
     >
       <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-        <motion.div
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          <Link to="/" className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#667eea] to-[#764ba2] no-underline">
-            🛡️ NutriVigil
+        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+          <Link
+            to="/"
+            className={`text-xl font-bold no-underline transition-colors ${
+              theme === "dark" ? "text-[#667eea]" : "text-[#667eea]"
+            }`}
+          >
+            <div className={`flex gap-3 ${theme == "dark" ? "text-[#667eea]" : "text-black"}`}>
+              {" "}
+              <img className="w-8 h-8" src={nutrivigile} alt="image"></img>{" "}
+              NutriVigile
+            </div>
           </Link>
         </motion.div>
-        <div className="flex gap-6">
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+
+        <div className="flex items-center gap-6">
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex gap-6">
+            {navItem("/", "Home")}
+            {navItem("/profile", "My Profile")}
+          </div>
+
+          {/* Theme Toggle */}
+          <motion.button
+            onClick={toggleTheme}
+            className={`p-2 rounded-lg transition-all duration-300 flex items-center justify-center border ${
+              theme === "dark"
+                ? "bg-white/10 hover:bg-white/20 border-white/20"
+                : "bg-gray-100 hover:bg-gray-200 border-gray-300"
+            }`}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            aria-label="Toggle theme"
           >
-            <Link 
-              to="/" 
-              className={`text-[15px] font-medium px-4 py-2 rounded-lg transition-all duration-300 no-underline ${
-                location.pathname === '/' 
-                  ? 'text-[#667eea] bg-[#f5f5ff] font-semibold' 
-                  : 'text-gray-600 hover:text-[#667eea] hover:bg-[#f5f5ff]'
-              }`}
-            >
-              Home
-            </Link>
-          </motion.div>
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            {theme === "dark" ? (
+              <Sun className="w-5 h-5 text-yellow-400" />
+            ) : (
+              <Moon className="w-5 h-5 text-blue-600" />
+            )}
+          </motion.button>
+
+          {/* Mobile Hamburger Button */}
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className={`md:hidden p-2 rounded-lg transition-all duration-300 flex items-center justify-center border ${
+              theme === "dark"
+                ? "bg-white/10 hover:bg-white/20 border-white/20"
+                : "bg-gray-100 hover:bg-gray-200 border-gray-300"
+            }`}
+            aria-label="Toggle menu"
           >
-            <Link 
-              to="/profile" 
-              className={`text-[15px] font-medium px-4 py-2 rounded-lg transition-all duration-300 no-underline ${
-                location.pathname === '/profile' 
-                  ? 'text-[#667eea] bg-[#f5f5ff] font-semibold' 
-                  : 'text-gray-600 hover:text-[#667eea] hover:bg-[#f5f5ff]'
-              }`}
-            >
-              My Profile
-            </Link>
-          </motion.div>
+            {isMobileMenuOpen ? (
+              <X
+                className={`w-5 h-5 ${
+                  theme === "dark" ? "text-white" : "text-gray-900"
+                }`}
+              />
+            ) : (
+              <Menu
+                className={`w-5 h-5 ${
+                  theme === "dark" ? "text-white" : "text-gray-900"
+                }`}
+              />
+            )}
+          </button>
         </div>
       </div>
+
+      {/* Mobile Menu */}
+      {isMobileMenuOpen && (
+        <div
+          className={`md:hidden border-t transition-colors ${
+            theme === "dark" ? "border-white/10" : "border-gray-200"
+          }`}
+        >
+          <div className="px-6 py-4 flex flex-col gap-3">
+            {navItem("/", "Home", true)}
+            {navItem("/profile", "My Profile", true)}
+          </div>
+        </div>
+      )}
     </motion.nav>
-  )
-}
+  );
+};
 
-export default Navbar
-
-
+export default Navbar;
