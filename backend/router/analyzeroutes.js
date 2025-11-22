@@ -1,8 +1,9 @@
 import express from "express";
 import upload from "../middleware/upload.js";
 import { analyzeFood } from "../controller/analyze.js";
-const analysisrouter = express.Router();
+const router = express.Router();
 
-analysisrouter.post("/", upload.single("image"), analyzeFood);
+router.post("/", upload.single("image"), analyzeFood);
 
-export default analysisrouter;
+
+export default router;

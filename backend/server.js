@@ -1,16 +1,16 @@
 import express from "express";
 import cors from "cors";
-import analysisrouter from "./router/analyzeroutes.js";
+import router from "./router/analyzeroutes.js"
 import "dotenv/config";
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.use("/analyze", analysisrouter);
+app.use("/analyze", router);
 
 app.get("/", (req, res) => {
-  res.send({ msg: "Nutri-Guard Backend Running!" });
+  res.send({ msg: "Hey mate ! Backend Running!" });
 });
 
 app.listen(process.env.PORT || 3000, () =>
