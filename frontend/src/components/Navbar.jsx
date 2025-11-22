@@ -55,7 +55,7 @@ const Navbar = () => {
             <div className={`flex gap-3 ${theme == "dark" ? "text-[#667eea]" : "text-black"}`}>
               {" "}
               <img className="w-8 h-8" src={nutrivigile} alt="image"></img>{" "}
-              NutriVigile
+              NutriVigil
             </div>
           </Link>
         </motion.div>
